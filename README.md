@@ -32,19 +32,19 @@ The car is based on an ESP32 D2 Mini, two AC motors and an HC-SR04 ultrasonic se
 |IO Pin|      Function                 |  Direction   |
 |------|-------------------------------|-------------:|
 |      | **Misc**                                     |
-| IO4  | wifi AP / client mode         | in           |
-| I19  | LED Distance warning          | out          |
-| I32  | Horn                          | out          |
-| IO2  | internal Led automatic mode   | out          |
+| 4    | wifi AP / client mode         | in           |
+| 19   | LED Distance warning          | out          |
+| 16   | Horn                          | out          |
+| 2    | internal Led automatic mode   | out          |
 |      | **Motor**                                    |
-| IO22 | L293D Motor EN1,2             | out, pwm     |
-| I17  | L293D Motor 1A                | out          |
-| I21  | L293D Motor 2A                | out          |
-| I5   | L293D Motor EN3,4             | out, pwm     |
-| I26  | L293D Motor 3A                | out          |
-| I23  | L293D Motor 4A                | out          |
+| 22   | L293D Motor EN1,2             | out, pwm     |
+| 17   | L293D Motor 1A                | out          |
+| 21   | L293D Motor 2A                | out          |
+| 5    | L293D Motor EN3,4             | out, pwm     |
+| 26   | L293D Motor 3A                | out          |
+| 23   | L293D Motor 4A                | out          |
 |      | **Distance**                                 |
-| I16  | HC-SR04 Trigger               | out          |
-| I18  | HC-SR04 Echo                  | in, interrupt|
-| I18  | HC-SR04 Echo                  | in, interrupt|
-| I18  | HC-SR04 Echo                  | in, interrupt|
+| 27   | HC-SR04 Trigger               | out          |
+| 25   | HC-SR04 Echo                  | in, interrupt|
+| 32   | HC-SR04 Echo                  | in, interrupt|
+| 12   | HC-SR04 Echo                  | in, interrupt|
