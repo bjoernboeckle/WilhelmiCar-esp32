@@ -18,9 +18,10 @@ void setup() {
   Serial.begin(921600);
   Serial.print("Starting up ");
   Serial.println(VERSION);
-  randomSeed(analogRead(0));
-
+  
+  delay(200);
   wilhelmiCar.begin();
+  delay(500);
 
   Serial.println("Connecting to wifi");
   if (digitalRead(ACCESS_POINT_SELECT) == HIGH)
@@ -32,8 +33,22 @@ void setup() {
   webApi.setup_routing();
 }
 
+
+
+//long timer = 0;
 // arduino loop function
 void loop() {
   webApi.handleClient();
   wilhelmiCar.loop();
+
+  /*if (micros() - timer >1000000 )
+  {
+    Serial.print("Distance: ");
+    Serial.print(wilhelmiCar.carState.Distance);
+    Serial.print(" / ");
+    Serial.print(wilhelmiCar.carState.DistanceLeft);
+    Serial.print(" / ");
+    Serial.println(wilhelmiCar.carState.DistanceRight);    
+    timer = micros();
+  }*/
 }

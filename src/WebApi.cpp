@@ -106,6 +106,8 @@ void WebApi::apiGetEnv(HTTPRequest * req, HTTPResponse * res) {
   jsonDocument["Speed"] = _car->carState.Speed;
   jsonDocument["Steering"] = _car->carState.Steering;
   jsonDocument["Distance"] = _car->carState.Distance;
+  jsonDocument["DistanceLeft"] = _car->carState.DistanceLeft;
+  jsonDocument["DistanceRight"] = _car->carState.DistanceRight;
   serializeJson(jsonDocument, buffer);
 
   AddCORS(res);

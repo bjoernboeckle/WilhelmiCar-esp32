@@ -9,7 +9,9 @@ extern String Client_PWD; // = "NoPassword";
 
 WilhelmiCar::WilhelmiCar() : SpeedMotor(DC_MOTOR_1A, DC_MOTOR_2A, DC_MOTOR_PWM_PIN, PWM_CHANNEL_DC_PWM),
                              SteerMotor(STEER_MOTOR_3A, STEER_MOTOR_4A, STEER_MOTOR_PWM_PIN, PWM_CHANNEL_STEER_PWM),
-                             sensor(TRIG_PIN),
+                             sensorLeft(),
+                             sensorRight(),
+                             sensor(TRIG_PIN, new HC_SR04_BASE *[2]{ &sensorLeft, &sensorRight }, 2),
                              autoPilot(this, preferences)
 {
 }
@@ -20,6 +22,7 @@ void WilhelmiCar::begin() {
  // open storage for permanent settings
   preferences.begin("wilhelmi-car", false); 
   ReadSettings();
+  delay(10);
   autoPilot.ReadAuotModeSettings();
     
   setupOutputs();
@@ -161,15 +164,54 @@ void WilhelmiCar::SendStopCommand() {
 }
 
 
+
+void WilhelmiCar::setDistanceValue(int &distance, int value) 
+{
+  // Ignore 0
+    if (value > 0 )
+      distance = value;
+}
+
+// global data to filter sensor input
+#define NUM_DISTANCE_VALUES  4
+static int distanceCounter[3] = {0, 0, 0};
+static std::array<int, NUM_DISTANCE_VALUES> distanceData [3];
+
+// GetFilteredDistance calculate distance based on input measurement,
+// try to remove noise and outliers by median and average filter
+int GetFilteredDistance(std::array<int, NUM_DISTANCE_VALUES> values) {
+  std::sort(values.begin(), values.end());  
+  int start = NUM_DISTANCE_VALUES / 2;
+  return values[start];
+  //return ( values[start] + values[start+1] + values[start+2] ) / 3;
+}
+
+
+void WilhelmiCar::updateDistanceValue(int &distance, int index) 
+{
+  int value = sensor.getDist_cm(index);
+  if (value <= 0)
+    return;
+
+  distanceData[index][distanceCounter[index]++] = value;
+  distance = GetFilteredDistance(distanceData[index]);
+  
+  distanceCounter[index] %= NUM_DISTANCE_VALUES;
+}
+
+
 // handleSensor handle distance sensor measurement
 void WilhelmiCar::handleSensor() {
   // check timeout for measurement
-  if (lastRead == 0 && sensor.isFinished()) {
-    // Ignore 0
-    long distance = sensor.getDist_cm();
-    if (distance > 0 )
-      carState.Distance = distance;
-    lastRead = micros();
+  if (lastRead == 0 && sensor.isFinished()) 
+  {
+    updateDistanceValue(carState.Distance, 0);
+    updateDistanceValue(carState.DistanceLeft, 1);
+    updateDistanceValue(carState.DistanceRight, 2);
+    //setDistanceValue(carState.Distance, sensor.getDist_cm(0));
+    //setDistanceValue(carState.DistanceLeft, sensor.getDist_cm(1));
+    //setDistanceValue(carState.DistanceRight, sensor.getDist_cm(2));
+    lastRead = micros();    
   } else if (lastRead != 0 && micros() - lastRead > 20000 ) {
     // Normal restart after measurement (delay between measurements)
     lastRead = 0;
@@ -219,6 +261,7 @@ void WilhelmiCar::setupOutputs() {
   pinMode(ACCESS_POINT_SELECT, INPUT_PULLUP);
   pinMode(LED_AUTOMATIC, OUTPUT);
   pinMode(WARNING_LED, OUTPUT); 
+
 
   bool bSpeedMotor = SpeedMotor.begin(carState.PwmSpeed, carState.PwmFrequency, PWM_RESOLUTION);
   bool bSteerMotor = SteerMotor.begin(carState.PwmSteering, carState.PwmFrequency, PWM_RESOLUTION);

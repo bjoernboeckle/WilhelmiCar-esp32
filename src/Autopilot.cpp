@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Preferences.h>
+#include <preferences.h>
 
 #include "defines.h"
 #include "WilhelmiCar.h"
 
-AutoPilot::AutoPilot(WilhelmiCar *car, Preferences &pref) : _car(car), preferences(pref) {
+AutoPilot::AutoPilot(WilhelmiCar *car, Preferences &pref) : _car(car)  {
     State = AUTO_IDLE;
+    preferences = &pref;
 }
 
 // StartAutoMode from web api etc
@@ -56,7 +57,7 @@ void AutoPilot::HandleAutoMode() {
         case AUTO_RECOVER_START_DELAY:        
             if (micros() - AutoRecoverStartedTime > 100 * 1000 ) {
                 _car->SetMotorSpeed(-autoModeSettings.RecoverSpeed);
-                _car->SetSteering(-autoModeSettings.Steering);
+                _car->SetSteering(_car->carState.DistanceLeft < 1.1*_car->carState.DistanceRight ? -autoModeSettings.Steering : autoModeSettings.Steering);
                 State = AUTO_RECOVERING;
             }
 
@@ -93,9 +94,11 @@ void AutoPilot::HandleAutoRunningState() {
         _car->SetSteering(0);
         State = AUTO_TRY_RECOVER;
         return;
-    } else if (_car->carState.Distance < autoModeSettings.StartSteerDistance) {        
+    } else if (_car->carState.Distance < autoModeSettings.StartSteerDistance ||
+                _car->carState.DistanceLeft < autoModeSettings.StartSteerDistance/3 ||
+                _car->carState.DistanceRight < autoModeSettings.StartSteerDistance/3 ) {        
         _car->SetMotorSpeed(autoModeSettings.SpeedSteering_Max);
-        _car->SetSteering(autoModeSettings.Steering);
+        _car->SetSteering(_car->carState.DistanceLeft < 1.1*_car->carState.DistanceRight ? autoModeSettings.Steering : -autoModeSettings.Steering);
         State = AUTO_STEERING;
         return;
     }
@@ -117,7 +120,7 @@ void AutoPilot::HandleAutoSteeringState() {
         _car->SetMotorSpeed(0);
         State = AUTO_TRY_RECOVER;
         return;
-    } else if (_car->carState.Distance > autoModeSettings.StartSteerDistance) {
+    } else if (_car->carState.Distance > autoModeSettings.StopSteerDistance) {
         StopAutoSteeringTime = micros();
         _car->SetMotorSpeed(autoModeSettings.Speed_Max);
         State = AUTO_RUNNING;
@@ -155,16 +158,16 @@ void AutoPilot::HandleAutoRecoveringState() {
 // Read auto mode settings from internal storage
 void AutoPilot::ReadAuotModeSettings() {
     // Read automode settings from storage
-    autoModeSettings.Speed_Start = preferences.getInt("Speed_Start", 72);
-    autoModeSettings.Speed_Max = preferences.getInt("Speed_Max", 57);
-    autoModeSettings.SpeedSteering_Max = preferences.getInt("SpeedSteering", 60);
-    autoModeSettings.RecoverSpeed = preferences.getInt("RecoverSpeed", 72);
-    autoModeSettings.Steering = preferences.getInt("Steering", 90);
-    autoModeSettings.StartSteerDistance = preferences.getInt("StartSteerD", 65);
-    autoModeSettings.StopSteerDistance = preferences.getInt("StopSteerD", 60);
-    autoModeSettings.StopDistance = preferences.getInt("StopDistance", 20);
-    autoModeSettings.DelayStopSteering_ms = preferences.getInt("DelayStopSteer", 1000);
-    autoModeSettings.AutoOff_s = preferences.getInt("AutoOff_s", 45);
+    autoModeSettings.Speed_Start = preferences->getInt("Speed_Start", 72);
+    autoModeSettings.Speed_Max = preferences->getInt("Speed_Max", 57);
+    autoModeSettings.SpeedSteering_Max = preferences->getInt("SpeedSteering", 60);
+    autoModeSettings.RecoverSpeed = preferences->getInt("RecoverSpeed", 72);
+    autoModeSettings.Steering = preferences->getInt("Steering", 90);
+    autoModeSettings.StartSteerDistance = preferences->getInt("StartSteerD", 65);
+    autoModeSettings.StopSteerDistance = preferences->getInt("StopSteerD", 60);
+    autoModeSettings.StopDistance = preferences->getInt("StopDistance", 20);
+    autoModeSettings.DelayStopSteering_ms = preferences->getInt("DelayStopSteer", 1000);
+    autoModeSettings.AutoOff_s = preferences->getInt("AutoOff_s", 45);
 
     Serial.println("---- Read auto mode settings--------");
     Serial.print("   Speed_Max: ");
@@ -192,16 +195,16 @@ void AutoPilot::ReadAuotModeSettings() {
 
 void AutoPilot::WriteAuotModeSettings() {
     // write automode settings to storage
-    preferences.putInt("Speed_Start", autoModeSettings.Speed_Start);
-    preferences.putInt("Speed_Max", autoModeSettings.Speed_Max);
-    preferences.putInt("SpeedSteering", autoModeSettings.SpeedSteering_Max);
-    preferences.putInt("RecoverSpeed", autoModeSettings.RecoverSpeed);
-    preferences.putInt("Steering", autoModeSettings.Steering);
-    preferences.putInt("StartSteerD", autoModeSettings.StartSteerDistance);
-    preferences.putInt("StopSteerD", autoModeSettings.StopSteerDistance);
-    preferences.putInt("StopDistance", autoModeSettings.StopDistance);
-    preferences.putInt("DelayStopSteer", autoModeSettings.DelayStopSteering_ms);
-    preferences.putInt("AutoOff_s", autoModeSettings.AutoOff_s);
+    preferences->putInt("Speed_Start", autoModeSettings.Speed_Start);
+    preferences->putInt("Speed_Max", autoModeSettings.Speed_Max);
+    preferences->putInt("SpeedSteering", autoModeSettings.SpeedSteering_Max);
+    preferences->putInt("RecoverSpeed", autoModeSettings.RecoverSpeed);
+    preferences->putInt("Steering", autoModeSettings.Steering);
+    preferences->putInt("StartSteerD", autoModeSettings.StartSteerDistance);
+    preferences->putInt("StopSteerD", autoModeSettings.StopSteerDistance);
+    preferences->putInt("StopDistance", autoModeSettings.StopDistance);
+    preferences->putInt("DelayStopSteer", autoModeSettings.DelayStopSteering_ms);
+    preferences->putInt("AutoOff_s", autoModeSettings.AutoOff_s);
 
     Serial.println("---- Writting auto mode settings--------");
     Serial.print("   Speed_Max: ");

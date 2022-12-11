@@ -57,6 +57,8 @@ typedef struct _carState
   int Speed;
   int Steering;
   int Distance;
+  int DistanceLeft;
+  int DistanceRight;
 } CarState;
 
 

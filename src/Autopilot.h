@@ -41,7 +41,7 @@ class AutoPilot {
         AutoModeSettings autoModeSettings;
         AutoPilot_State State;
         // preferences to save data permanently
-        Preferences preferences;
+        Preferences *preferences;
 
         unsigned long AutoModeRunningTime = 0;
         unsigned long AutoModeStartedTime = 0;

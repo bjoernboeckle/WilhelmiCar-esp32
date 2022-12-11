@@ -9,6 +9,7 @@
 // need to be >=8 and <63
 #define  PWD_AP  NULL                  
 
+#define MAX_SENSORS          3
 
 
 // Define Pins
@@ -18,14 +19,18 @@
 #define DC_MOTOR_PWM_PIN    22
 #define DC_MOTOR_1A         17
 #define DC_MOTOR_2A         21
-#define HORN_PIN            32
+#define HORN_PIN            16
 
 #define STEER_MOTOR_PWM_PIN  5
 #define STEER_MOTOR_3A      26
 #define STEER_MOTOR_4A      23
 
-#define TRIG_PIN            16
-#define ECHO_PIN            18
+#define TRIG_PIN            27
+#define ECHO_PIN            25
+#define ECHO_PIN_LEFT       32
+#define ECHO_PIN_RIGHT      12
+
+
 
 // PWM Channels
 //12000

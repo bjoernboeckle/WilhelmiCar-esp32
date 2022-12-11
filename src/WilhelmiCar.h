@@ -16,6 +16,8 @@ public:
     L293D SpeedMotor;
     L293D SteerMotor;
     HC_SR04<ECHO_PIN> sensor;
+    HC_SR04<ECHO_PIN_LEFT> sensorLeft;
+    HC_SR04<ECHO_PIN_RIGHT> sensorRight;
 
     void begin();
     void loop();
@@ -51,6 +53,8 @@ private:
     //  local functions
     void setupOutputs();
     void handleSensor();
+    void setDistanceValue(int &distance, int value);
+    void updateDistanceValue(int &distance, int index);
 };
 
 #endif
