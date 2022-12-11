@@ -29,7 +29,7 @@ class AutoPilot {
         void HandleAutoMode();
         void HandleAutoMode1();
         bool StartAutoMode();
-        bool StopAutoMode();
+        void StopAutoMode() { State = AUTO_IDLE; }
 
         void WriteAuotModeSettings();
         void ReadAuotModeSettings();

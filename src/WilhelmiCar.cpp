@@ -75,14 +75,19 @@ void WilhelmiCar::SendMoveCommand(MoveCommand cmd) {
 
   digitalWrite(LED_AUTOMATIC, carState.Movement == Automatic ? HIGH : LOW);
   
+  
   // Handle Automatic
   if (carState.Movement == Automatic)
     autoPilot.StartAutoMode();
   else if (carState.Movement == Stop) {
     SetMotorSpeed(0);
     SetSteering(0);
+    if (autoPilot.GetState() != AUTO_IDLE)
+      autoPilot.StopAutoMode();
   }
   else {
+    if (autoPilot.GetState() != AUTO_IDLE)
+      autoPilot.StopAutoMode();
     // Handle Speed
     SetMotorSpeed(cmd.Speed);
     // Handle Steering
