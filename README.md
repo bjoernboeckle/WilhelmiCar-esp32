@@ -13,7 +13,7 @@ https://github.com/bjoernboeckle/WilhelmiCar-esp32.git
 
 
 ## Web App 
-https://wilhelmicar-web.azurewebsites.net
+https://wilhelmicar.azurewebsites.net/
 
 
 ## .Net Maui App 
