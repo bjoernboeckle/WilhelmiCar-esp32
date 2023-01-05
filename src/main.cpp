@@ -15,11 +15,11 @@ WebApi webApi(&wilhelmiCar);
 
 // arduino setup function
 void setup() {
-  Serial.begin(921600);
+  Serial.begin(115200);
   Serial.print("Starting up ");
   Serial.println(VERSION);
   
-  delay(200);
+  delay(500);
   wilhelmiCar.begin();
   delay(500);
 

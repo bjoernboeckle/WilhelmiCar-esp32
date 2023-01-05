@@ -5,9 +5,9 @@
 
 
 // Set these to your desired accesspoint SSID/PWD.
-#define SSID_AP "Wilhelmi-Car"
+#define SSID_AP "WilhelmiCar"
 // need to be >=8 and <63
-#define  PWD_AP  NULL                  
+#define  PWD_AP  NULL
 
 #define MAX_SENSORS          3
 

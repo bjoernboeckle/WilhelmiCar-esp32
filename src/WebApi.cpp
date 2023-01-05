@@ -233,6 +233,7 @@ void WebApi::handleActivateHorn(HTTPRequest * req, HTTPResponse * res) {
 void WebApi::setupAP(const char* ssid, const char* pwd) {
   WiFi.disconnect();
   WiFi.softAP(ssid, pwd);
+  delay(500);
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP SSID: ");
   Serial.println(ssid);
